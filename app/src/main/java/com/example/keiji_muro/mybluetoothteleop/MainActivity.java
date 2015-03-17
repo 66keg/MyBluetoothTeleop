@@ -76,11 +76,13 @@ public class MainActivity extends Activity implements SensorEventListener, View.
     private BluetoothChatService mChatService2 = null;
 
     // add
-    private Button btnL, btnR, btnStart;
+    private Button btnL, btnR, btnStart, btnNucleo;
     private int requested_btn_number = 0;
-    private BluetoothChatService[] mChatServiceArr = new BluetoothChatService[] {null, null};
+    private BluetoothChatService[] mChatServiceArr = new BluetoothChatService[] {null, null, null};
     final int RIGHT_MODULE_ID = 1;
     final int LEFT_MODULE_ID = 0;
+    final int NUCLEO_MODULE_ID = 2;
+    private boolean flag_nucleo = false;
 
     // for sensor
     private SensorManager myManager = null;
@@ -124,6 +126,8 @@ public class MainActivity extends Activity implements SensorEventListener, View.
         btnR.setOnClickListener(this);
         btnStart = (Button) findViewById(R.id.buttonStart);
         btnStart.setOnClickListener(this);
+        btnNucleo = (Button) findViewById(R.id.buttonNucleo);
+        btnNucleo.setOnClickListener(this);
 
         //tvRxL = (TextView) findViewById(R.id.LeftRx);
         //tvRxR = (TextView) findViewById(R.id.RightRx);
@@ -542,6 +546,21 @@ public class MainActivity extends Activity implements SensorEventListener, View.
                 mChatServiceArr[requested_btn_number-1].connect(deviceR, true);
                 Log.d(TAG, "ButtonR clicked");
                 break;
+            case R.id.buttonNucleo:
+                requested_btn_number = 3;
+                /*
+                serverIntent = new Intent(this, DeviceListActivity.class);
+                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+                */
+                // Set the device MAC address
+                String addressN = "00:1B:DC:09:88:C0";
+                // Get the BluetoothDevice object
+                BluetoothDevice deviceN = mBluetoothAdapter.getRemoteDevice(addressN);
+                // Attempt to connect to the device
+                mChatServiceArr[requested_btn_number-1].connect(deviceN, true);
+                Log.d(TAG, "ButtonNucleo clicked");
+                flag_nucleo = true;
+                break;
             case R.id.buttonStart:
                 if(!broadcast_flag)
                 {
@@ -624,7 +643,9 @@ public class MainActivity extends Activity implements SensorEventListener, View.
             long time_interval = current_time - pre_time;
 
             int vR = (int)(vel + avel);
-            int vL = -(int)(vel - avel);
+            int vL = (int)(vel - avel);
+
+            if(!flag_nucleo)  vL = -vL;
 
             if(vR > PWM_MAX && Math.abs(vL) <= PWM_MAX)
             {
@@ -691,6 +712,10 @@ public class MainActivity extends Activity implements SensorEventListener, View.
 
                 sendMessage(txR, RIGHT_MODULE_ID);
                 sendMessage(txL, LEFT_MODULE_ID);
+
+                String tx = "mr" + txR + "l" + txL;
+                Log.v("sendMessage to Nucleo", tx);
+                sendMessage(tx, NUCLEO_MODULE_ID);
 
 //                iv.setRotation(-(float)azimuth);
             }
