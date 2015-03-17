@@ -82,7 +82,7 @@ public class MainActivity extends Activity implements SensorEventListener, View.
     final int RIGHT_MODULE_ID = 1;
     final int LEFT_MODULE_ID = 0;
     final int NUCLEO_MODULE_ID = 2;
-    private boolean flag_nucleo = false;
+    //private boolean flag_nucleo = false;
 
     // for sensor
     private SensorManager myManager = null;
@@ -559,7 +559,7 @@ public class MainActivity extends Activity implements SensorEventListener, View.
                 // Attempt to connect to the device
                 mChatServiceArr[requested_btn_number-1].connect(deviceN, true);
                 Log.d(TAG, "ButtonNucleo clicked");
-                flag_nucleo = true;
+                //flag_nucleo = true;
                 break;
             case R.id.buttonStart:
                 if(!broadcast_flag)
@@ -643,9 +643,9 @@ public class MainActivity extends Activity implements SensorEventListener, View.
             long time_interval = current_time - pre_time;
 
             int vR = (int)(vel + avel);
-            int vL = (int)(vel - avel);
+            int vL = -(int)(vel - avel);
 
-            if(!flag_nucleo)  vL = -vL;
+            //if(!flag_nucleo)  vL = -vL;
 
             if(vR > PWM_MAX && Math.abs(vL) <= PWM_MAX)
             {
